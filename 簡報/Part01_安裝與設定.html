@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 1 - 安裝與基本設定</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%); min-height: 100vh; overflow: hidden; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 10000; }
+        .nav-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none; transition: all 0.3s; }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.4); }
+        .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .prev-arrow { left: 30px; } .next-arrow { right: 30px; }
+        .slide { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); display: none; align-items: center; justify-content: center; padding: 40px; opacity: 0; transition: opacity 0.4s; }
+        .slide.active { display: flex; opacity: 1; }
+        .content-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 50px; max-width: 1200px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #7C3AED; font-size: 48px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #5B21B6; font-size: 32px; margin-bottom: 25px; border-bottom: 3px solid #7C3AED; padding-bottom: 10px; }
+        h3 { color: #7C3AED; font-size: 22px; margin: 20px 0 12px 0; }
+        p, li { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 10px; }
+        .highlight { background: linear-gradient(120deg, #7C3AED, #8B5CF6); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .box { padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid; }
+        .info { background: #EDE9FE; border-color: #7C3AED; }
+        .success { background: #D1FAE5; border-color: #10B981; }
+        .warning { background: #FEE2E2; border-color: #EF4444; }
+        .step-box { background: linear-gradient(135deg, #7C3AED, #8B5CF6); color: white; padding: 15px 25px; border-radius: 12px; margin: 15px 0; font-size: 20px; font-weight: bold; }
+        .demo-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 16px; white-space: pre-wrap; }
+        .demo-label { color: #A78BFA; font-weight: bold; margin-bottom: 10px; display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .concept-card { background: #EDE9FE; padding: 20px; border-radius: 15px; border: 2px solid #7C3AED; }
+        .emoji-large { font-size: 60px; margin-bottom: 15px; }
+        .center { text-align: center; }
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4000; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .dot.active { background: #A78BFA; transform: scale(1.3); }
+        .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .compare-table th, .compare-table td { padding: 15px; text-align: left; border: 1px solid #ddd; }
+        .compare-table th { background: #7C3AED; color: white; }
+        .compare-table tr:nth-child(even) { background: #EDE9FE; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">← 返回首頁</a>
+        <div class="nav-title">Part 1 - 安裝與基本設定</div>
+        <div class="nav-buttons">
+            <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" class="nav-btn">FB 社團</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">YouTube</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">全螢幕</button>
+        </div>
+    </div>
+    <button class="nav-arrow prev-arrow" onclick="prevSlide()">❮</button>
+    <button class="nav-arrow next-arrow" onclick="nextSlide()">❯</button>
+
+    <div class="slide active">
+        <div class="content-card center">
+            <div class="emoji-large">🖥️</div>
+            <h1>Claude Desktop 安裝與設定</h1>
+            <p style="font-size: 24px; color: #666;">Part 1：5 分鐘完成安裝</p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span class="highlight">下載安裝</span>
+                <span class="highlight">帳號登入</span>
+                <span class="highlight">基本設定</span>
+                <span class="highlight">開始使用</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🖥️ 什麼是 Claude Desktop？</h2>
+            <div class="two-col">
+                <div>
+                    <p>Claude Desktop 是 <span class="highlight">Anthropic 官方桌面應用程式</span></p>
+                    <h3>相比網頁版的優勢：</h3>
+                    <ul>
+                        <li>⚡ <strong>更快速</strong>：原生應用效能更好</li>
+                        <li>🔔 <strong>通知功能</strong>：收到回覆會通知</li>
+                        <li>⌨️ <strong>快捷鍵</strong>：全域快捷鍵隨時呼叫</li>
+                        <li>📁 <strong>檔案整合</strong>：更方便的檔案操作</li>
+                        <li>🔌 <strong>MCP 支援</strong>：可擴充功能</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>💻 系統需求</h3>
+                    <p><strong>Windows：</strong>Windows 10 以上</p>
+                    <p><strong>macOS：</strong>macOS 12 以上</p>
+                    <p><strong>硬碟空間：</strong>約 500MB</p>
+                    <div class="box info" style="margin-top: 15px;">
+                        <strong>注意：</strong>目前尚未支援 Linux
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📥 實作：下載 Claude Desktop</h2>
+            <div class="step-box">Step 1：前往下載頁面</div>
+            <div class="demo-box"><span class="demo-label">📍 下載網址</span>https://claude.ai/download</div>
+
+            <div class="step-box">Step 2：選擇你的作業系統</div>
+            <div class="two-col">
+                <div class="box info">
+                    <strong>🪟 Windows 用戶</strong><br>
+                    點擊「Download for Windows」<br>
+                    下載 .exe 安裝檔
+                </div>
+                <div class="box info">
+                    <strong>🍎 macOS 用戶</strong><br>
+                    點擊「Download for macOS」<br>
+                    下載 .dmg 安裝檔
+                </div>
+            </div>
+
+            <div class="step-box">Step 3：執行安裝程式</div>
+            <p>Windows：雙擊 .exe 檔案，按照提示安裝</p>
+            <p>macOS：開啟 .dmg，將 Claude 拖到應用程式資料夾</p>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔐 實作：登入帳號</h2>
+            <div class="step-box">Step 1：啟動 Claude Desktop</div>
+            <p>從開始選單或應用程式中找到 Claude 並開啟</p>
+
+            <div class="step-box">Step 2：選擇登入方式</div>
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>📧 Email 登入</h3>
+                    <ol>
+                        <li>輸入你的 Email</li>
+                        <li>收取驗證碼</li>
+                        <li>輸入驗證碼完成登入</li>
+                    </ol>
+                </div>
+                <div class="concept-card">
+                    <h3>🔗 Google 帳號</h3>
+                    <ol>
+                        <li>點擊「Continue with Google」</li>
+                        <li>在瀏覽器中選擇 Google 帳號</li>
+                        <li>授權後自動登入</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="box success">
+                <strong>✅ 成功登入後</strong>：你會看到熟悉的 Claude 對話介面！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⚙️ 實作：基本設定</h2>
+            <div class="step-box">開啟設定頁面</div>
+            <div class="demo-box"><span class="demo-label">🔧 操作方式</span>Windows：點擊左上角 ☰ 選單 → Settings
+macOS：Claude → Settings（或按 Cmd + ,）</div>
+
+            <h3>重要設定項目：</h3>
+            <div class="two-col">
+                <div class="box info">
+                    <strong>🌐 Language（語言）</strong><br>
+                    選擇介面語言（支援繁體中文）
+                </div>
+                <div class="box info">
+                    <strong>🎨 Appearance（外觀）</strong><br>
+                    Light / Dark / System（跟隨系統）
+                </div>
+                <div class="box info">
+                    <strong>⌨️ Keyboard Shortcuts</strong><br>
+                    查看和自訂快捷鍵
+                </div>
+                <div class="box info">
+                    <strong>🔔 Notifications</strong><br>
+                    開啟/關閉桌面通知
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⌨️ 實作：設定全域快捷鍵</h2>
+            <p>讓你隨時隨地快速呼叫 Claude！</p>
+
+            <div class="step-box">設定快速啟動快捷鍵</div>
+            <div class="demo-box"><span class="demo-label">🔧 路徑</span>Settings → Keyboard Shortcuts → Quick Launch</div>
+
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>🪟 Windows 建議</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: #7C3AED;">Alt + Space</p>
+                    <p>或 Ctrl + Shift + C</p>
+                </div>
+                <div class="concept-card">
+                    <h3>🍎 macOS 建議</h3>
+                    <p style="font-size: 24px; font-weight: bold; color: #7C3AED;">⌥ + Space</p>
+                    <p>或 ⌘ + Shift + C</p>
+                </div>
+            </div>
+
+            <div class="box success">
+                <strong>💡 設定後</strong>：無論你在使用什麼程式，按下快捷鍵就能立即呼叫 Claude！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🚀 實作：第一次使用</h2>
+            <div class="step-box">試試看！按下你設定的快捷鍵</div>
+            <p>Claude 視窗會立即彈出</p>
+
+            <div class="step-box">輸入第一個問題</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>你好！請用一句話說明 Claude Desktop 的優點</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆範例</span>Claude Desktop 讓你能隨時透過快捷鍵快速呼叫 AI 助手，無需開啟瀏覽器，大幅提升工作效率！</div>
+
+            <div class="box success">
+                <strong>🎉 恭喜！</strong>你已經成功設定好 Claude Desktop 了！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔄 保持更新</h2>
+            <div class="two-col">
+                <div>
+                    <h3>自動更新</h3>
+                    <p>Claude Desktop 會自動檢查並下載更新</p>
+                    <div class="box info">
+                        <strong>更新時機：</strong><br>
+                        • 啟動時自動檢查<br>
+                        • 有新版本會提示重啟
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>📋 檢查版本</h3>
+                    <div class="demo-box" style="background: #1e1e1e;"><span class="demo-label">查看版本</span>Settings → About
+或
+Help → About Claude</div>
+                    <p style="margin-top: 10px;">確保使用最新版本以獲得最佳體驗</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>❓ 安裝常見問題</h2>
+            <h3>Q：安裝時出現安全性警告？</h3>
+            <div class="box info">
+                <strong>A：</strong>Windows 可能顯示「Windows 已保護您的電腦」，點擊「其他資訊」→「仍要執行」即可。
+            </div>
+
+            <h3>Q：登入後一直轉圈圈？</h3>
+            <div class="box info">
+                <strong>A：</strong>檢查網路連線，或嘗試重啟應用程式。
+            </div>
+
+            <h3>Q：快捷鍵沒反應？</h3>
+            <div class="box info">
+                <strong>A：</strong>可能和其他程式衝突，嘗試換一組快捷鍵。
+            </div>
+
+            <h3>Q：可以同時登入網頁版嗎？</h3>
+            <div class="box success">
+                <strong>A：</strong>可以！桌面版和網頁版對話會同步。
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card center">
+            <div class="emoji-large">🎓</div>
+            <h2>Part 1 總結</h2>
+            <div class="two-col" style="text-align: left; margin-top: 30px;">
+                <div class="concept-card">
+                    <h3>✅ 你學會了</h3>
+                    <ul>
+                        <li>Claude Desktop 的優勢</li>
+                        <li>下載與安裝程式</li>
+                        <li>登入帳號</li>
+                        <li>基本設定</li>
+                        <li>設定全域快捷鍵</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📝 回家作業</h3>
+                    <ul>
+                        <li>安裝 Claude Desktop</li>
+                        <li>設定你喜歡的快捷鍵</li>
+                        <li>調整外觀為深色模式試試</li>
+                        <li>用快捷鍵呼叫 Claude 10 次</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box success" style="margin-top: 30px;">
+                <strong>下一單元：</strong>Part 2 - 介面導覽與基本對話
+            </div>
+        </div>
+    </div>
+
+    <div class="indicators"></div>
+    <script>
+        let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const totalSlides = slides.length;
+        function createIndicators() { const c = document.querySelector('.indicators'); for (let i = 0; i < totalSlides; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' active' : ''); d.onclick = () => goToSlide(i); c.appendChild(d); } }
+        function updateSlide() { slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide)); document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide)); }
+        function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; updateSlide(); }
+        function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlide(); }
+        function goToSlide(n) { currentSlide = n; updateSlide(); }
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); if (e.key === 'f') toggleFullscreen(); });
+        createIndicators();
+    </script>
+</body>
+</html>

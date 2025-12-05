@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 4 - 文件處理實作</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #059669 0%, #10B981 100%); min-height: 100vh; overflow: hidden; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 10000; }
+        .nav-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .prev-arrow { left: 30px; } .next-arrow { right: 30px; }
+        .slide { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); display: none; align-items: center; justify-content: center; padding: 40px; opacity: 0; transition: opacity 0.4s; }
+        .slide.active { display: flex; opacity: 1; }
+        .content-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 50px; max-width: 1200px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #059669; font-size: 48px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #047857; font-size: 32px; margin-bottom: 25px; border-bottom: 3px solid #059669; padding-bottom: 10px; }
+        h3 { color: #059669; font-size: 22px; margin: 20px 0 12px 0; }
+        p, li { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 10px; }
+        .highlight { background: linear-gradient(120deg, #059669, #10B981); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .box { padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid; }
+        .info { background: #D1FAE5; border-color: #059669; }
+        .success { background: #ECFCCB; border-color: #84CC16; }
+        .warning { background: #FEE2E2; border-color: #EF4444; }
+        .demo-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 16px; white-space: pre-wrap; }
+        .demo-label { color: #34D399; font-weight: bold; margin-bottom: 10px; display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .concept-card { background: #D1FAE5; padding: 20px; border-radius: 15px; border: 2px solid #059669; }
+        .emoji-large { font-size: 60px; margin-bottom: 15px; }
+        .center { text-align: center; }
+        .step-box { background: linear-gradient(135deg, #059669, #10B981); color: white; padding: 15px 25px; border-radius: 12px; margin: 15px 0; font-size: 20px; font-weight: bold; }
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4000; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .dot.active { background: #34D399; transform: scale(1.3); }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">← 返回首頁</a>
+        <div class="nav-title">Part 4 - 文件處理實作</div>
+        <div class="nav-buttons">
+            <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" class="nav-btn">FB 社團</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">YouTube</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">全螢幕</button>
+        </div>
+    </div>
+    <button class="nav-arrow prev-arrow" onclick="prevSlide()">❮</button>
+    <button class="nav-arrow next-arrow" onclick="nextSlide()">❯</button>
+
+    <div class="slide active">
+        <div class="content-card center">
+            <div class="emoji-large">📄</div>
+            <h1>文件處理實作</h1>
+            <p style="font-size: 24px; color: #666;">Part 4：讓 Claude 幫你處理各種文件</p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span class="highlight">PDF 分析</span>
+                <span class="highlight">文件摘要</span>
+                <span class="highlight">資料整理</span>
+                <span class="highlight">格式轉換</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📎 支援的檔案類型</h2>
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>📄 文件檔案</h3>
+                    <ul>
+                        <li>PDF 文件 ✅</li>
+                        <li>TXT 純文字 ✅</li>
+                        <li>MD Markdown ✅</li>
+                        <li>CSV 表格資料 ✅</li>
+                        <li>DOC/DOCX（有限支援）</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>🖼️ 圖片檔案</h3>
+                    <ul>
+                        <li>JPG / JPEG ✅</li>
+                        <li>PNG ✅</li>
+                        <li>GIF ✅</li>
+                        <li>WebP ✅</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box info">
+                <strong>💡 限制：</strong>單檔最大約 10MB，一次最多上傳 5 個檔案
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📤 實作：上傳檔案</h2>
+            <div class="step-box">方法 1：點擊上傳按鈕</div>
+            <p>點擊輸入框左側的 📎 圖示，選擇檔案</p>
+
+            <div class="step-box">方法 2：拖曳上傳</div>
+            <p>直接將檔案從資料夾拖曳到對話視窗</p>
+
+            <div class="step-box">方法 3：複製貼上</div>
+            <p>截圖後直接 Ctrl+V / Cmd+V 貼上</p>
+
+            <div class="box success">
+                <strong>💡 桌面版優勢：</strong>支援從檔案總管直接拖曳，比網頁版更方便！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📚 實作：PDF 摘要</h2>
+            <div class="step-box">Step 1：上傳 PDF 文件</div>
+            <p>拖曳任何一份 PDF 到對話視窗</p>
+
+            <div class="step-box">Step 2：輸入指令</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請幫我摘要這份文件的重點，用條列方式呈現</div>
+
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆範例</span>📄 文件摘要：
+
+**主要內容：**
+1. 第一個重點...
+2. 第二個重點...
+3. 第三個重點...
+
+**關鍵數據：**
+- 數據 A：XXX
+- 數據 B：XXX
+
+**結論：**
+這份文件主要在說明...</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>❓ 實作：文件問答</h2>
+            <p>上傳文件後，可以針對內容提問</p>
+
+            <div class="demo-box"><span class="demo-label">👤 問法 1：找特定資訊</span>這份報告中提到的銷售目標是多少？</div>
+
+            <div class="demo-box"><span class="demo-label">👤 問法 2：解釋內容</span>請解釋文件第三章提到的方法論</div>
+
+            <div class="demo-box"><span class="demo-label">👤 問法 3：比較分析</span>這份合約和一般合約有什麼不同的地方？</div>
+
+            <div class="demo-box"><span class="demo-label">👤 問法 4：生成建議</span>根據這份分析報告，你有什麼建議？</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📊 實作：表格資料處理</h2>
+            <div class="step-box">上傳 CSV 檔案後</div>
+
+            <div class="demo-box"><span class="demo-label">👤 分析資料</span>請分析這份銷售數據，找出表現最好的產品</div>
+
+            <div class="demo-box"><span class="demo-label">👤 資料清理</span>幫我檢查這份資料有沒有重複或錯誤的地方</div>
+
+            <div class="demo-box"><span class="demo-label">👤 格式轉換</span>請把這份 CSV 轉換成 Markdown 表格格式</div>
+
+            <div class="demo-box"><span class="demo-label">👤 統計計算</span>計算每個類別的總和與平均值</div>
+
+            <div class="box info">
+                <strong>💡 提示：</strong>Claude 可以理解表格結構，進行計算和分析
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📝 實作：文件改寫</h2>
+            <div class="step-box">上傳原始文件</div>
+            <p>例如：一份正式的商業提案</p>
+
+            <div class="demo-box"><span class="demo-label">👤 簡化改寫</span>請把這份文件改寫成一般人都能看懂的版本</div>
+
+            <div class="demo-box"><span class="demo-label">👤 風格轉換</span>請把這份報告改成簡報摘要的格式</div>
+
+            <div class="demo-box"><span class="demo-label">👤 翻譯改寫</span>請把這份中文文件翻譯成英文，並保持專業語氣</div>
+
+            <div class="demo-box"><span class="demo-label">👤 擴展內容</span>根據這份大綱，幫我擴展成完整的文章</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔍 實作：多檔案比較</h2>
+            <div class="step-box">同時上傳多個檔案</div>
+            <p>一次最多可上傳 5 個檔案</p>
+
+            <div class="demo-box"><span class="demo-label">👤 比較兩份合約</span>[上傳 合約A.pdf 和 合約B.pdf]
+請比較這兩份合約的主要差異，特別是付款條款和責任歸屬</div>
+
+            <div class="demo-box"><span class="demo-label">👤 整合多份報告</span>[上傳 Q1報告.pdf、Q2報告.pdf、Q3報告.pdf]
+請幫我整合這三份季報的重點，做成年度回顧摘要</div>
+
+            <div class="box success">
+                <strong>💡 應用場景：</strong>合約比較、報告整合、版本差異分析
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⚠️ 文件處理注意事項</h2>
+            <div class="two-col">
+                <div class="box warning">
+                    <h3>🔒 隱私安全</h3>
+                    <ul>
+                        <li>不要上傳機密文件</li>
+                        <li>避免個人敏感資料</li>
+                        <li>商業機密請謹慎</li>
+                    </ul>
+                </div>
+                <div class="box info">
+                    <h3>📋 最佳實踐</h3>
+                    <ul>
+                        <li>PDF 盡量使用文字版（非掃描）</li>
+                        <li>大檔案可以分批處理</li>
+                        <li>指令要具體明確</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="box success">
+                <strong>💡 如果文件太長：</strong>請 Claude 分段處理，或先提供目錄讓它定位
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card center">
+            <div class="emoji-large">🎓</div>
+            <h2>Part 4 總結</h2>
+            <div class="two-col" style="text-align: left; margin-top: 30px;">
+                <div class="concept-card">
+                    <h3>✅ 你學會了</h3>
+                    <ul>
+                        <li>上傳各種類型的檔案</li>
+                        <li>PDF 文件摘要與問答</li>
+                        <li>表格資料分析處理</li>
+                        <li>文件改寫與轉換</li>
+                        <li>多檔案比較分析</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📝 回家作業</h3>
+                    <ul>
+                        <li>上傳一份 PDF 做摘要</li>
+                        <li>上傳 CSV 做資料分析</li>
+                        <li>比較兩份類似文件</li>
+                        <li>將一份文件改寫成不同風格</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box success" style="margin-top: 30px;">
+                <strong>下一單元：</strong>Part 5 - 程式碼協助實作
+            </div>
+        </div>
+    </div>
+
+    <div class="indicators"></div>
+    <script>
+        let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const totalSlides = slides.length;
+        function createIndicators() { const c = document.querySelector('.indicators'); for (let i = 0; i < totalSlides; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' active' : ''); d.onclick = () => goToSlide(i); c.appendChild(d); } }
+        function updateSlide() { slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide)); document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide)); }
+        function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; updateSlide(); }
+        function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlide(); }
+        function goToSlide(n) { currentSlide = n; updateSlide(); }
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); if (e.key === 'f') toggleFullscreen(); });
+        createIndicators();
+    </script>
+</body>
+</html>

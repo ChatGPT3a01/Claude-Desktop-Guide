@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 6 - 寫作與翻譯實作</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%); min-height: 100vh; overflow: hidden; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 10000; }
+        .nav-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .prev-arrow { left: 30px; } .next-arrow { right: 30px; }
+        .slide { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); display: none; align-items: center; justify-content: center; padding: 40px; opacity: 0; transition: opacity 0.4s; }
+        .slide.active { display: flex; opacity: 1; }
+        .content-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 50px; max-width: 1200px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #DC2626; font-size: 48px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #B91C1C; font-size: 32px; margin-bottom: 25px; border-bottom: 3px solid #DC2626; padding-bottom: 10px; }
+        h3 { color: #DC2626; font-size: 22px; margin: 20px 0 12px 0; }
+        p, li { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 10px; }
+        .highlight { background: linear-gradient(120deg, #DC2626, #EF4444); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .box { padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid; }
+        .info { background: #FEE2E2; border-color: #DC2626; }
+        .success { background: #D1FAE5; border-color: #10B981; }
+        .demo-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 16px; white-space: pre-wrap; }
+        .demo-label { color: #F87171; font-weight: bold; margin-bottom: 10px; display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .concept-card { background: #FEE2E2; padding: 20px; border-radius: 15px; border: 2px solid #DC2626; }
+        .emoji-large { font-size: 60px; margin-bottom: 15px; }
+        .center { text-align: center; }
+        .step-box { background: linear-gradient(135deg, #DC2626, #EF4444); color: white; padding: 15px 25px; border-radius: 12px; margin: 15px 0; font-size: 20px; font-weight: bold; }
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4000; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .dot.active { background: #F87171; transform: scale(1.3); }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">← 返回首頁</a>
+        <div class="nav-title">Part 6 - 寫作與翻譯實作</div>
+        <div class="nav-buttons">
+            <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" class="nav-btn">FB 社團</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">YouTube</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">全螢幕</button>
+        </div>
+    </div>
+    <button class="nav-arrow prev-arrow" onclick="prevSlide()">❮</button>
+    <button class="nav-arrow next-arrow" onclick="nextSlide()">❯</button>
+
+    <div class="slide active">
+        <div class="content-card center">
+            <div class="emoji-large">✍️</div>
+            <h1>寫作與翻譯實作</h1>
+            <p style="font-size: 24px; color: #666;">Part 6：用 Claude Desktop 提升你的文字能力</p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span class="highlight">商業寫作</span>
+                <span class="highlight">創意寫作</span>
+                <span class="highlight">專業翻譯</span>
+                <span class="highlight">文字潤飾</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📧 實作：商業郵件撰寫</h2>
+            <div class="step-box">情境：請假申請</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>幫我寫一封請假郵件給主管，下週三要請假一天去看牙醫</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆</span>主旨：請假申請 - 12/11（三）
+
+主管您好，
+
+因預約了牙科回診，想申請下週三（12/11）休假一天。
+目前手邊工作已妥善安排，若有緊急事項可透過手機聯繫。
+
+以上懇請核准，謝謝！
+
+[你的名字]</div>
+            <div class="box info">
+                <strong>💡 提示：</strong>可以要求調整語氣，如「更正式」或「更輕鬆」
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📋 實作：會議記錄整理</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請把以下會議討論整理成正式會議記錄：
+
+今天開會討論新產品上市
+小王說希望能在三月上架
+財務說預算可能不夠要再評估
+行銷說需要兩個月準備宣傳
+結論是先做市場調查再決定</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 會議記錄</span>📋 會議記錄
+
+【會議主題】新產品上市規劃討論
+【會議日期】2024年12月XX日
+
+【討論要點】
+1. 產品部門（王XX）：建議三月上架
+2. 財務部門：預算需重新評估
+3. 行銷部門：需兩個月宣傳準備期
+
+【決議事項】
+✓ 先進行市場調查，待結果出爐後再決定上市時程
+
+【後續追蹤】
+- 負責人：待指派
+- 完成期限：待定</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📝 實作：文章改寫與潤飾</h2>
+            <div class="demo-box"><span class="demo-label">👤 原始文字</span>我們公司做軟體開發的 有十年經驗 客戶很多 服務很好 歡迎合作</div>
+            <div class="demo-box"><span class="demo-label">👤 請求</span>請把這段文字改寫得更專業正式</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 專業版本</span>本公司深耕軟體開發領域逾十年，累積豐富的產業經驗與穩定的客戶基礎。我們以優質的服務品質著稱，致力於為客戶提供最佳的解決方案。誠摯歡迎各界洽談合作機會。</div>
+
+            <div class="box success">
+                <strong>其他改寫選項：</strong>「改成口語版」「加入數據更有說服力」「改成社群貼文風格」
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🌐 實作：專業翻譯</h2>
+            <div class="step-box">中翻英 - 保持專業語氣</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請將以下翻譯成英文，保持專業商務語氣：
+
+很高興收到貴公司的合作邀請。針對您提出的方案，我們需要內部討論後再回覆您。預計下週一前會給您答覆。</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 英文翻譯</span>Thank you for reaching out regarding the collaboration opportunity. We appreciate your proposal and will need to discuss it internally before providing our response. We expect to get back to you by Monday next week.</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🎭 實作：風格轉換</h2>
+            <div class="two-col">
+                <div class="demo-box"><span class="demo-label">👤 正式 → 輕鬆</span>請把這段正式文字改成輕鬆的社群風格：
+
+「本公司將於下週舉辦年度特賣活動，誠摯邀請各位蒞臨參觀。」</div>
+                <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 社群風格</span>📢 下週要來囉！
+年度特賣開跑 🛍️
+好康優惠等你來挖寶！
+快揪朋友一起來逛～</div>
+            </div>
+            <div class="box info">
+                <strong>💡 風格選項：</strong>正式/口語/幽默/嚴肅/年輕活潑/專業學術
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>✨ 實作：創意寫作</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>幫我寫一則 IG 貼文，主題是週末去爬山的心得，要有 hashtag</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 IG 貼文</span>週末給自己一個遠離城市的機會 🏔️
+
+站在山頂的那一刻
+所有的疲憊都值得了 ✨
+
+大自然果然是最好的充電站
+下山後整個人都煥然一新！
+
+你最近一次親近大自然是什麼時候？
+留言告訴我 👇
+
+#週末日常 #爬山去 #山系女孩
+#戶外活動 #療癒時光 #大自然
+#台灣山岳 #假日好去處</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📚 實作：學術寫作協助</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>我要寫一篇關於「人工智慧對教育的影響」的論文
+請幫我列出可以探討的子題和大綱</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 論文大綱</span>📖 人工智慧對教育的影響
+
+一、緒論
+   1.1 研究背景與動機
+   1.2 研究目的與問題
+
+二、文獻探討
+   2.1 AI 教育應用現況
+   2.2 個人化學習理論
+
+三、AI 在教育的應用面向
+   3.1 智慧輔助教學
+   3.2 自動化評量系統
+   3.3 學習分析與預測
+
+四、影響與挑戰
+   4.1 正面影響（效率、個人化）
+   4.2 潛在問題（數位落差、隱私）
+
+五、結論與建議</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔍 實作：語法檢查</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請檢查這段英文的文法錯誤：
+
+"Yesterday I go to the store and buyed some foods. The store was very crowded and I waiting for a long time. After that, I goes home and cook dinner."</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 修正與說明</span>✅ 修正後：
+"Yesterday I went to the store and bought some food. The store was very crowded and I waited for a long time. After that, I went home and cooked dinner."
+
+❌ 錯誤說明：
+1. go → went（過去式）
+2. buyed → bought（buy 不規則變化）
+3. foods → food（food 通常不可數）
+4. waiting → waited（需要過去式）
+5. goes → went（過去式）
+6. cook → cooked（過去式）</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card center">
+            <div class="emoji-large">🎓</div>
+            <h2>Part 6 總結</h2>
+            <div class="two-col" style="text-align: left; margin-top: 30px;">
+                <div class="concept-card">
+                    <h3>✅ 你學會了</h3>
+                    <ul>
+                        <li>商業郵件與會議記錄</li>
+                        <li>文章改寫與潤飾</li>
+                        <li>專業翻譯技巧</li>
+                        <li>風格轉換</li>
+                        <li>創意內容撰寫</li>
+                        <li>語法檢查修正</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📝 回家作業</h3>
+                    <ul>
+                        <li>用 Claude 寫一封工作郵件</li>
+                        <li>把一段中文翻譯成英文</li>
+                        <li>寫一則社群貼文</li>
+                        <li>請 Claude 檢查你的英文作文</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box success" style="margin-top: 30px;">
+                <strong>下一單元：</strong>Part 7 - MCP 伺服器設定
+            </div>
+        </div>
+    </div>
+
+    <div class="indicators"></div>
+    <script>
+        let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const totalSlides = slides.length;
+        function createIndicators() { const c = document.querySelector('.indicators'); for (let i = 0; i < totalSlides; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' active' : ''); d.onclick = () => goToSlide(i); c.appendChild(d); } }
+        function updateSlide() { slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide)); document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide)); }
+        function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; updateSlide(); }
+        function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlide(); }
+        function goToSlide(n) { currentSlide = n; updateSlide(); }
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); if (e.key === 'f') toggleFullscreen(); });
+        createIndicators();
+    </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 2 - 介面導覽與基本對話</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #2563EB 0%, #3B82F6 100%); min-height: 100vh; overflow: hidden; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 10000; }
+        .nav-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.4); }
+        .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .prev-arrow { left: 30px; } .next-arrow { right: 30px; }
+        .slide { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); display: none; align-items: center; justify-content: center; padding: 40px; opacity: 0; transition: opacity 0.4s; }
+        .slide.active { display: flex; opacity: 1; }
+        .content-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 50px; max-width: 1200px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #2563EB; font-size: 48px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #1D4ED8; font-size: 32px; margin-bottom: 25px; border-bottom: 3px solid #2563EB; padding-bottom: 10px; }
+        h3 { color: #2563EB; font-size: 22px; margin: 20px 0 12px 0; }
+        p, li { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 10px; }
+        .highlight { background: linear-gradient(120deg, #2563EB, #3B82F6); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .box { padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid; }
+        .info { background: #DBEAFE; border-color: #2563EB; }
+        .success { background: #D1FAE5; border-color: #10B981; }
+        .demo-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 16px; white-space: pre-wrap; }
+        .demo-label { color: #60A5FA; font-weight: bold; margin-bottom: 10px; display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .concept-card { background: #DBEAFE; padding: 20px; border-radius: 15px; border: 2px solid #2563EB; }
+        .emoji-large { font-size: 60px; margin-bottom: 15px; }
+        .center { text-align: center; }
+        .step-box { background: linear-gradient(135deg, #2563EB, #3B82F6); color: white; padding: 15px 25px; border-radius: 12px; margin: 15px 0; font-size: 20px; font-weight: bold; }
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4000; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .dot.active { background: #60A5FA; transform: scale(1.3); }
+        .kbd { background: #374151; color: white; padding: 4px 10px; border-radius: 5px; font-family: monospace; font-size: 14px; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">← 返回首頁</a>
+        <div class="nav-title">Part 2 - 介面導覽與基本對話</div>
+        <div class="nav-buttons">
+            <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" class="nav-btn">FB 社團</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">YouTube</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">全螢幕</button>
+        </div>
+    </div>
+    <button class="nav-arrow prev-arrow" onclick="prevSlide()">❮</button>
+    <button class="nav-arrow next-arrow" onclick="nextSlide()">❯</button>
+
+    <div class="slide active">
+        <div class="content-card center">
+            <div class="emoji-large">🧭</div>
+            <h1>介面導覽與基本對話</h1>
+            <p style="font-size: 24px; color: #666;">Part 2：熟悉 Claude Desktop 操作</p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span class="highlight">介面認識</span>
+                <span class="highlight">快捷鍵</span>
+                <span class="highlight">對話技巧</span>
+                <span class="highlight">歷史管理</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🖥️ 主介面導覽</h2>
+            <div class="two-col">
+                <div>
+                    <h3>📱 左側邊欄</h3>
+                    <ul>
+                        <li>📝 <strong>New Chat</strong>：開始新對話</li>
+                        <li>📁 <strong>Projects</strong>：專案管理</li>
+                        <li>⭐ <strong>Starred</strong>：收藏對話</li>
+                        <li>🕐 <strong>Recents</strong>：最近對話</li>
+                        <li>🔍 <strong>Search</strong>：搜尋歷史</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>💬 主對話區</h3>
+                    <ul>
+                        <li>📄 對話內容顯示區</li>
+                        <li>📎 附件上傳按鈕</li>
+                        <li>✏️ 輸入框</li>
+                        <li>🔄 模型選擇器</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box info">
+                <strong>💡 提示：</strong>側邊欄可以縮合，點擊左上角的 ☰ 圖示切換
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⌨️ 必學快捷鍵</h2>
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>🪟 Windows</h3>
+                    <ul>
+                        <li><span class="kbd">Ctrl + N</span> 新對話</li>
+                        <li><span class="kbd">Ctrl + K</span> 快速搜尋</li>
+                        <li><span class="kbd">Ctrl + ,</span> 開啟設定</li>
+                        <li><span class="kbd">Ctrl + Enter</span> 送出訊息</li>
+                        <li><span class="kbd">Ctrl + Shift + C</span> 複製最後回覆</li>
+                        <li><span class="kbd">Esc</span> 停止生成</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>🍎 macOS</h3>
+                    <ul>
+                        <li><span class="kbd">⌘ + N</span> 新對話</li>
+                        <li><span class="kbd">⌘ + K</span> 快速搜尋</li>
+                        <li><span class="kbd">⌘ + ,</span> 開啟設定</li>
+                        <li><span class="kbd">⌘ + Enter</span> 送出訊息</li>
+                        <li><span class="kbd">⌘ + Shift + C</span> 複製最後回覆</li>
+                        <li><span class="kbd">Esc</span> 停止生成</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>💬 實作：開始對話</h2>
+            <div class="step-box">練習 1：開新對話並詢問</div>
+            <div class="demo-box"><span class="demo-label">👤 按 Ctrl/⌘ + N 開新對話，輸入：</span>請幫我寫一封感謝同事幫忙的簡短郵件</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆</span>主旨：感謝您的協助
+
+Hi [同事名字]，
+
+想特別感謝你在 [專案/事項] 上的大力幫忙。有你的協助，讓這件事情順利完成，真的非常感謝！
+
+如果之後有什麼需要我幫忙的，請隨時說一聲。
+
+再次感謝！
+
+[你的名字]</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔄 實作：延續對話</h2>
+            <div class="step-box">練習 2：繼續修改</div>
+            <div class="demo-box"><span class="demo-label">👤 接著輸入</span>把語氣改得更輕鬆活潑一點</div>
+            <div class="demo-box" style="background: #0d3d0d;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆</span>主旨：謝啦！🎉
+
+Hey [同事名字]，
+
+超級感謝你幫我處理 [那件事]！有你 cover 真的太讚了 👍
+
+下次請你喝杯咖啡！
+
+[你的名字]</div>
+            <div class="box success">
+                <strong>💡 重點：</strong>Claude 會記住對話上下文，可以不斷調整！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⭐ 實作：收藏對話</h2>
+            <div class="step-box">Step 1：找到重要對話</div>
+            <p>在對話列表中，滑鼠移到對話標題上</p>
+
+            <div class="step-box">Step 2：點擊星號</div>
+            <p>點擊對話右側的 ⭐ 圖示</p>
+
+            <div class="step-box">Step 3：在 Starred 中查看</div>
+            <p>左側邊欄的「Starred」會顯示所有收藏</p>
+
+            <div class="box info">
+                <strong>💡 使用情境：</strong><br>
+                • 重要的工作對話<br>
+                • 實用的範本回覆<br>
+                • 常用的提示詞參考
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔍 實作：搜尋歷史對話</h2>
+            <div class="step-box">使用搜尋功能</div>
+            <div class="demo-box"><span class="demo-label">🔧 快捷鍵</span>Ctrl + K（Windows）或 ⌘ + K（macOS）</div>
+
+            <h3>搜尋技巧：</h3>
+            <div class="two-col">
+                <div class="box info">
+                    <strong>關鍵字搜尋</strong><br>
+                    輸入「email」找所有郵件相關對話
+                </div>
+                <div class="box info">
+                    <strong>日期篩選</strong><br>
+                    可依日期範圍過濾結果
+                </div>
+            </div>
+
+            <div class="step-box">練習：搜尋你剛才的對話</div>
+            <div class="demo-box"><span class="demo-label">👤 按 Ctrl/⌘ + K，輸入</span>感謝 郵件</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📝 實作：重新命名對話</h2>
+            <div class="step-box">Step 1：找到對話</div>
+            <p>在左側邊欄的對話列表中</p>
+
+            <div class="step-box">Step 2：右鍵點擊或點選 ... 選單</div>
+            <p>選擇「Rename」（重新命名）</p>
+
+            <div class="step-box">Step 3：輸入新名稱</div>
+            <div class="demo-box"><span class="demo-label">📝 範例命名</span>感謝信範本 - 同事協助版</div>
+
+            <div class="box success">
+                <strong>💡 命名技巧：</strong>使用描述性名稱，方便日後搜尋，如「專案名稱 - 任務」
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🗑️ 管理對話</h2>
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>刪除單一對話</h3>
+                    <ol>
+                        <li>右鍵點擊對話</li>
+                        <li>選擇「Delete」</li>
+                        <li>確認刪除</li>
+                    </ol>
+                    <div class="box info" style="margin-top: 10px;">
+                        <strong>⚠️ 注意：</strong>刪除後無法復原
+                    </div>
+                </div>
+                <div class="concept-card">
+                    <h3>清除所有對話</h3>
+                    <ol>
+                        <li>開啟 Settings</li>
+                        <li>找到「Clear All Chats」</li>
+                        <li>確認清除</li>
+                    </ol>
+                    <div class="box info" style="margin-top: 10px;">
+                        <strong>💡 建議：</strong>先收藏重要對話
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card center">
+            <div class="emoji-large">🎓</div>
+            <h2>Part 2 總結</h2>
+            <div class="two-col" style="text-align: left; margin-top: 30px;">
+                <div class="concept-card">
+                    <h3>✅ 你學會了</h3>
+                    <ul>
+                        <li>主介面各區域功能</li>
+                        <li>常用快捷鍵操作</li>
+                        <li>開始與延續對話</li>
+                        <li>收藏重要對話</li>
+                        <li>搜尋歷史對話</li>
+                        <li>管理與命名對話</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📝 回家作業</h3>
+                    <ul>
+                        <li>練習所有快捷鍵 5 遍</li>
+                        <li>建立 3 個不同主題對話</li>
+                        <li>收藏 1 個對話</li>
+                        <li>使用搜尋找回對話</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box success" style="margin-top: 30px;">
+                <strong>下一單元：</strong>Part 3 - 專案功能實作
+            </div>
+        </div>
+    </div>
+
+    <div class="indicators"></div>
+    <script>
+        let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const totalSlides = slides.length;
+        function createIndicators() { const c = document.querySelector('.indicators'); for (let i = 0; i < totalSlides; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' active' : ''); d.onclick = () => goToSlide(i); c.appendChild(d); } }
+        function updateSlide() { slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide)); document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide)); }
+        function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; updateSlide(); }
+        function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlide(); }
+        function goToSlide(n) { currentSlide = n; updateSlide(); }
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); if (e.key === 'f') toggleFullscreen(); });
+        createIndicators();
+    </script>
+</body>
+</html>

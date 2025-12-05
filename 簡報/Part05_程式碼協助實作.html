@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part 5 - 程式碼協助實作</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%); min-height: 100vh; overflow: hidden; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 0 30px; z-index: 10000; }
+        .nav-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 14px; font-weight: 600; text-decoration: none; }
+        .nav-title { font-size: 20px; font-weight: 700; color: #fff; }
+        .nav-buttons { display: flex; gap: 12px; }
+        .nav-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; width: 60px; height: 60px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); font-size: 24px; cursor: pointer; z-index: 9000; display: flex; align-items: center; justify-content: center; }
+        .prev-arrow { left: 30px; } .next-arrow { right: 30px; }
+        .slide { position: absolute; top: 60px; left: 0; width: 100%; height: calc(100vh - 60px); display: none; align-items: center; justify-content: center; padding: 40px; opacity: 0; transition: opacity 0.4s; }
+        .slide.active { display: flex; opacity: 1; }
+        .content-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px; padding: 50px; max-width: 1200px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #D97706; font-size: 48px; margin-bottom: 20px; text-align: center; }
+        h2 { color: #B45309; font-size: 32px; margin-bottom: 25px; border-bottom: 3px solid #D97706; padding-bottom: 10px; }
+        h3 { color: #D97706; font-size: 22px; margin: 20px 0 12px 0; }
+        p, li { font-size: 18px; line-height: 1.8; color: #444; margin-bottom: 10px; }
+        .highlight { background: linear-gradient(120deg, #D97706, #F59E0B); padding: 3px 10px; border-radius: 5px; color: white; font-weight: bold; }
+        .box { padding: 20px; border-radius: 12px; margin: 20px 0; border-left: 5px solid; }
+        .info { background: #FEF3C7; border-color: #D97706; }
+        .success { background: #D1FAE5; border-color: #10B981; }
+        .demo-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Consolas', monospace; font-size: 15px; white-space: pre-wrap; }
+        .demo-label { color: #F59E0B; font-weight: bold; margin-bottom: 10px; display: block; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .concept-card { background: #FEF3C7; padding: 20px; border-radius: 15px; border: 2px solid #D97706; }
+        .emoji-large { font-size: 60px; margin-bottom: 15px; }
+        .center { text-align: center; }
+        .step-box { background: linear-gradient(135deg, #D97706, #F59E0B); color: white; padding: 15px 25px; border-radius: 12px; margin: 15px 0; font-size: 20px; font-weight: bold; }
+        .indicators { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 4000; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 30px; }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .dot.active { background: #FBBF24; transform: scale(1.3); }
+        .code-keyword { color: #C586C0; }
+        .code-string { color: #CE9178; }
+        .code-comment { color: #6A9955; }
+        .code-function { color: #DCDCAA; }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="nav-bar">
+        <a href="index.html" class="nav-btn">← 返回首頁</a>
+        <div class="nav-title">Part 5 - 程式碼協助實作</div>
+        <div class="nav-buttons">
+            <a href="https://www.facebook.com/groups/2754139931432955" target="_blank" class="nav-btn">FB 社團</a>
+            <a href="https://www.youtube.com/@Liang-yt02" target="_blank" class="nav-btn">YouTube</a>
+            <button class="nav-btn" onclick="toggleFullscreen()">全螢幕</button>
+        </div>
+    </div>
+    <button class="nav-arrow prev-arrow" onclick="prevSlide()">❮</button>
+    <button class="nav-arrow next-arrow" onclick="nextSlide()">❯</button>
+
+    <div class="slide active">
+        <div class="content-card center">
+            <div class="emoji-large">💻</div>
+            <h1>程式碼協助實作</h1>
+            <p style="font-size: 24px; color: #666;">Part 5：讓 Claude 成為你的程式助手</p>
+            <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <span class="highlight">程式生成</span>
+                <span class="highlight">除錯修復</span>
+                <span class="highlight">程式解釋</span>
+                <span class="highlight">程式優化</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🌐 支援的程式語言</h2>
+            <div class="two-col">
+                <div class="concept-card">
+                    <h3>前端開發</h3>
+                    <ul>
+                        <li>JavaScript / TypeScript</li>
+                        <li>HTML / CSS</li>
+                        <li>React / Vue / Angular</li>
+                        <li>Node.js</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>後端開發</h3>
+                    <ul>
+                        <li>Python</li>
+                        <li>Java / Kotlin</li>
+                        <li>C# / .NET</li>
+                        <li>Go / Rust</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box info">
+                <strong>💡 提示：</strong>Claude 對幾乎所有主流程式語言都有很好的支援！
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>✍️ 實作：生成程式碼</h2>
+            <div class="step-box">練習 1：描述需求，生成程式碼</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請用 Python 寫一個函式，輸入一個數字列表，回傳列表中的最大值和最小值</div>
+            <div class="demo-box"><span class="demo-label">🤖 Claude 回覆</span><span class="code-keyword">def</span> <span class="code-function">find_min_max</span>(numbers):
+    <span class="code-string">"""
+    找出列表中的最大值和最小值
+
+    Args:
+        numbers: 數字列表
+    Returns:
+        tuple: (最小值, 最大值)
+    """</span>
+    <span class="code-keyword">if not</span> numbers:
+        <span class="code-keyword">return</span> <span class="code-keyword">None</span>, <span class="code-keyword">None</span>
+
+    <span class="code-keyword">return</span> <span class="code-function">min</span>(numbers), <span class="code-function">max</span>(numbers)
+
+<span class="code-comment"># 使用範例</span>
+nums = [3, 1, 4, 1, 5, 9, 2, 6]
+min_val, max_val = find_min_max(nums)
+<span class="code-function">print</span>(<span class="code-string">f"最小值: {min_val}, 最大值: {max_val}"</span>)</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🐛 實作：除錯修復</h2>
+            <div class="step-box">貼上有問題的程式碼</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>這段程式碼有 bug，請幫我找出問題：
+
+def calculate_average(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)
+
+# 執行時出現 ZeroDivisionError</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆</span>問題在於：當 numbers 是空列表時，len(numbers) 為 0，導致除以零錯誤。
+
+修正後的程式碼：
+
+def calculate_average(numbers):
+    if not numbers:  # 檢查空列表
+        return 0  # 或 return None
+    total = 0
+    for num in numbers:
+        total += num
+    return total / len(numbers)</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📖 實作：解釋程式碼</h2>
+            <div class="step-box">貼上不懂的程式碼</div>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請解釋這段程式碼在做什麼：
+
+const result = arr.filter(x => x > 0).map(x => x * 2).reduce((a, b) => a + b, 0);</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 Claude 回覆</span>這段程式碼做了三個連續操作：
+
+1. **filter(x => x > 0)**
+   篩選出陣列中所有大於 0 的數字
+
+2. **map(x => x * 2)**
+   將篩選後的每個數字乘以 2
+
+3. **reduce((a, b) => a + b, 0)**
+   將所有數字加總，初始值為 0
+
+📌 例子：
+arr = [-1, 2, 3, -4, 5]
+→ filter 後：[2, 3, 5]
+→ map 後：[4, 6, 10]
+→ reduce 後：20</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>⚡ 實作：優化程式碼</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請優化這段程式碼的效能：
+
+def find_duplicates(lst):
+    duplicates = []
+    for i in range(len(lst)):
+        for j in range(i + 1, len(lst)):
+            if lst[i] == lst[j] and lst[i] not in duplicates:
+                duplicates.append(lst[i])
+    return duplicates</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 優化後的版本</span>def find_duplicates(lst):
+    seen = set()
+    duplicates = set()
+    for item in lst:
+        if item in seen:
+            duplicates.add(item)
+        seen.add(item)
+    return list(duplicates)
+
+# 時間複雜度從 O(n²) 降低到 O(n)</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>🔄 實作：語言轉換</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請把這段 Python 程式碼轉換成 JavaScript：
+
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+
+names = ["Alice", "Bob", "Charlie"]
+for name in names:
+    print(greet(name))</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 JavaScript 版本</span>function greet(name, greeting = "Hello") {
+    return `${greeting}, ${name}!`;
+}
+
+const names = ["Alice", "Bob", "Charlie"];
+names.forEach(name => {
+    console.log(greet(name));
+});</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>📝 實作：加上註解</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請幫這段程式碼加上詳細的中文註解：
+
+async function fetchUserData(userId) {
+    try {
+        const response = await fetch(`/api/users/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 加上註解後</span>/**
+ * 非同步獲取使用者資料
+ * @param {string} userId - 使用者 ID
+ * @returns {Promise<Object|null>} 使用者資料或 null
+ */
+async function fetchUserData(userId) {
+    try {
+        // 發送 GET 請求到 API 端點
+        const response = await fetch(`/api/users/${userId}`);
+
+        // 檢查回應是否成功（狀態碼 200-299）
+        if (!response.ok) throw new Error('Failed to fetch');
+
+        // 解析 JSON 格式的回應並回傳
+        return await response.json();
+    } catch (error) {
+        // 發生錯誤時記錄到控制台
+        console.error(error);
+        // 回傳 null 表示獲取失敗
+        return null;
+    }
+}</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card">
+            <h2>✅ 實作：生成測試</h2>
+            <div class="demo-box"><span class="demo-label">👤 你的輸入</span>請幫這個函式寫單元測試：
+
+def is_valid_email(email):
+    import re
+    pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return bool(re.match(pattern, email))</div>
+            <div class="demo-box" style="background: #1a3a1a;"><span class="demo-label" style="color: #10B981;">🤖 測試程式碼</span>import pytest
+
+def test_valid_email():
+    assert is_valid_email("user@example.com") == True
+    assert is_valid_email("test.user@domain.org") == True
+
+def test_invalid_email():
+    assert is_valid_email("invalid") == False
+    assert is_valid_email("no@domain") == False
+    assert is_valid_email("@example.com") == False
+
+def test_edge_cases():
+    assert is_valid_email("") == False
+    assert is_valid_email("a@b.c") == True</div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="content-card center">
+            <div class="emoji-large">🎓</div>
+            <h2>Part 5 總結</h2>
+            <div class="two-col" style="text-align: left; margin-top: 30px;">
+                <div class="concept-card">
+                    <h3>✅ 你學會了</h3>
+                    <ul>
+                        <li>描述需求生成程式碼</li>
+                        <li>除錯找出並修復 bug</li>
+                        <li>解釋不懂的程式碼</li>
+                        <li>優化程式效能</li>
+                        <li>轉換不同程式語言</li>
+                        <li>生成註解和測試</li>
+                    </ul>
+                </div>
+                <div class="concept-card">
+                    <h3>📝 回家作業</h3>
+                    <ul>
+                        <li>請 Claude 寫一個小工具</li>
+                        <li>拿一段舊程式碼請它優化</li>
+                        <li>學一個新語言的語法</li>
+                        <li>為你的程式碼加上測試</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box success" style="margin-top: 30px;">
+                <strong>下一單元：</strong>Part 6 - 寫作與翻譯實作
+            </div>
+        </div>
+    </div>
+
+    <div class="indicators"></div>
+    <script>
+        let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const totalSlides = slides.length;
+        function createIndicators() { const c = document.querySelector('.indicators'); for (let i = 0; i < totalSlides; i++) { const d = document.createElement('div'); d.className = 'dot' + (i === 0 ? ' active' : ''); d.onclick = () => goToSlide(i); c.appendChild(d); } }
+        function updateSlide() { slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide)); document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === currentSlide)); }
+        function nextSlide() { currentSlide = (currentSlide + 1) % totalSlides; updateSlide(); }
+        function prevSlide() { currentSlide = (currentSlide - 1 + totalSlides) % totalSlides; updateSlide(); }
+        function goToSlide(n) { currentSlide = n; updateSlide(); }
+        function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+        document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') nextSlide(); if (e.key === 'ArrowLeft') prevSlide(); if (e.key === 'f') toggleFullscreen(); });
+        createIndicators();
+    </script>
+</body>
+</html>
